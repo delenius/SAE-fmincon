@@ -3,17 +3,19 @@ from numpy import array, ones, pi, cos, sqrt
 from pandas import read_csv, read_excel
 from random import uniform, randint
 from os.path import dirname
+import os
 
 # directory path
 SAEdir = dirname(__file__)
 
 # read data into dataframes
-params=read_excel(SAEdir+"\\resources\\params.xlsx", engine='openpyxl')
-materials=read_csv(SAEdir+"\\resources\\materials.csv")
-tires=read_csv(SAEdir+"\\resources\\tires.csv")
-motors=read_csv(SAEdir+"\\resources\\motors.csv")
-brakes=read_csv(SAEdir+"\\resources\\brakes.csv")
-suspension=read_csv(SAEdir+"\\resources\\suspension.csv")
+resource_dir=os.path.join(SAEdir,'resources')
+params=read_excel(os.path.join(resource_dir,'params.xlsx'), engine='openpyxl')
+materials=read_csv(os.path.join(resource_dir,'materials.csv'))
+tires=read_csv(os.path.join(resource_dir,'tires.csv'))
+motors=read_csv(os.path.join(resource_dir,'motors.csv'))
+brakes=read_csv(os.path.join(resource_dir,'brakes.csv'))
+suspension=read_csv(os.path.join(resource_dir,'suspension.csv'))
 
 # constants
 v_car = 26.8 # m/s
@@ -33,8 +35,8 @@ weights2 = array([25,1,15,20,15,1,1,15,5,1,1])/100
 weights3 = array([14,1,20,15,25,1,1,10,10,2,1])/100
 
 # simplified model parameters
-slopes=read_csv(SAEdir+"\\resources\\slopes.csv").to_numpy()
-constants=read_csv(SAEdir+"\\resources\\constants.csv").to_numpy()
+slopes=read_csv(os.path.join(resource_dir,'slopes.csv')).to_numpy()
+constants=read_csv(os.path.join(resource_dir,'constants.csv')).to_numpy()
 constants = constants.reshape(12,)
         
 class car:
@@ -262,7 +264,7 @@ class car:
         lcg = self.lc
         lf = 0.5
         return 2*Ffsp*lf + 2*Frsp*lf + downForceRearWing*(lcg - self.lrw) - downForceFrontWing*(lcg-self.lfw) - 2*downForceSideWing*(lcg-self.lsw)
-    
+
     # objectives (0th is weighted global objective, 1th to 11th are sub - objectives)
     def objectives(self, weights):
         return(array([self.mass()*weights[0]+self.cGy()*weights[1]+self.F_drag_total()*weights[2]-self.F_down_total()*weights[3]-self.acceleration()*weights[4]+self.crashForce()*weights[5]+self.iaVolume()*weights[6]-self.cornerVelocity()*weights[7]+self.breakingDistance()*weights[8]+self.suspensionAcceleration()*weights[9]+self.pitchMoment()*weights[10], self.mass(), self.cGy(), self.F_drag_total(), self.F_down_total(), self.acceleration(), self.crashForce(), self.iaVolume(), self.cornerVelocity(), self.breakingDistance(), self.suspensionAcceleration(), self.pitchMoment()]))
